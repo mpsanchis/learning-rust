@@ -20,7 +20,11 @@ fn main() {
   let (_a, b, _c) = tup;
   println!("The first element of the tuple is {0} and the second is {1}", tup.0, b);
 
-  // arrays (fixed length, same types)
+  // arrays (fixed length, same types). Useful when:
+  // - you want data allocated in stack instead of heap
+  // - you want to ensure a fixed number of elements
   let arr = [1, 2, 3, 4, 5];
   
+  // Declaring array with type and size:
+  let arr2: [i32; 5] = [1, 2, 3, 4, 5];
 }
