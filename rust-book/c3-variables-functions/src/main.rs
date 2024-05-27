@@ -1,3 +1,5 @@
+use std::io;
+
 fn main() {
 
   // booleans
@@ -27,4 +29,40 @@ fn main() {
   
   // Declaring array with type and size:
   let arr2: [i32; 5] = [1, 2, 3, 4, 5];
+
+  // Call a function
+  print_labeled_measurement(42, 'h');
+  statement_vs_expression();
+
+  // Branching
+  let mut print_hello = String::new();
+
+  println!("Please write true or false: ");
+  io::stdin()
+    .read_line(&mut print_hello)
+    .expect("Failed to read line");
+
+  if print_hello == "true" {
+    println!("hello is being printed");
+  } else {
+    println!("goodbye is being printed");
+  }
+}
+
+// Example of function with two arguments (note the types are required)
+fn print_labeled_measurement(value: i32, unit_label: char) {
+  println!("The measurement is: {value}{unit_label}");
+}
+
+fn statement_vs_expression() {
+  let y = {
+    let x = 3;
+    x + 1 // note there is no semicolon here
+  };
+
+  println!("The value of y is: {y}");
+}
+
+fn five() -> i32 {
+  5 // no need to return: the last expression in the function is returned
 }
