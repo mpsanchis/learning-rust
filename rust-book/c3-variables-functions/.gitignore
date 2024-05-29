@@ -1,2 +1,3 @@
-# panic_oob.rs when compiled with (rustc src/panic_oob.rs)
+# files other than main.rs when compiled with (rustc src/foobar.rs)
 panic_oob
+loops
