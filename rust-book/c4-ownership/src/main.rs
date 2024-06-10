@@ -35,6 +35,16 @@ fn main() {
 
   // x would move into the function but i32 is Copy, so it's okay to still use x afterward
   makes_copy(x);
+
+  // Pass as a reference, so that function does not take ownership:
+  let l: usize = calculate_length(&p);
+  println!("I should be able to print both p ({p}) and its length ({l}) if I have passed it as a reference");
+  
+  // Mutate a variable inside a function by using a reference
+  let mut p_mut = p.clone();
+  println!("A clone of 'p' is: {p_mut}");
+  mutate_string_without_taking_ownership(&mut p_mut);
+  println!("After changing, p_mut is: {p_mut}");
 }
 
 fn takes_ownership(some_string: String) { // some_string comes into scope
@@ -48,4 +58,12 @@ fn makes_copy(some_integer: i32) { // some_integer comes into scope
 
 fn takes_and_gives_back(a_string: String) -> String { // a_string comes into scope
   return a_string;  // a_string is returned and moves out to the calling function
+}
+
+fn calculate_length(s: &String) -> usize {
+  return s.len();
+}
+
+fn mutate_string_without_taking_ownership(s: &mut String) {
+  s.push_str("_something_appended");
 }
