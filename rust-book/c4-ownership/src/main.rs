@@ -9,7 +9,7 @@ fn main() {
 
     let s2 = s1;
 
-    // println!("{s}"); --> doesn't work, because "s2" took ownership
+    // println!("{s1}"); --> doesn't work, because "s2" took ownership
     
     println!("{s2}");
 
