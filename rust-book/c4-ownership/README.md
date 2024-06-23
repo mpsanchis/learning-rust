@@ -101,3 +101,21 @@ fn no_dangle() -> String {
   return s;
 }
 ```
+
+## Slices
+
+Lists such as arrays and strings can be "sliced" and get a pointer to a section of them:
+```rust
+let my_string = String::from("hello world");
+let hello: &str = &my_string[0..6];
+```
+
+String slices are of type `&str`. If a function wants to find something in a string, it can return `&str`, which will be an immutable pointer to the string. This means that if some instruction after the function call modifies the string before the function result has been used, the Rust compiler will complain: the immutable `&str` reference must be used before some mutable reference to the string modifies the string.
+
+Note that for function calls, `&str` is a superset of `&String`. Declaring `&str` as a parameter type is more general than `&String`.
+
+For arrays, the functioning is similar:
+```rust
+let a = [1, 2, 3, 4, 5];
+let slice: &[i32] = &a[1..3];
+```

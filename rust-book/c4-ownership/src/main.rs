@@ -1,3 +1,5 @@
+mod slices;
+
 fn main() {
   {
     let _s = "hello"; // this is a string literal. Lives in the stack (immutable)
@@ -17,7 +19,6 @@ fn main() {
     s3 = s3.replace("!", " from s3!");
 
     println!("Now I can print both s2 ({s2}) and s3 ({s3})");
-
   } // rust will drop variables from this block {} because they'll be out of scope
 
   let s = String::from("hello");  // s comes into scope
@@ -45,6 +46,8 @@ fn main() {
   println!("A clone of 'p' is: {p_mut}");
   mutate_string_without_taking_ownership(&mut p_mut);
   println!("After changing, p_mut is: {p_mut}");
+
+  slices::slices();
 }
 
 fn takes_ownership(some_string: String) { // some_string comes into scope
