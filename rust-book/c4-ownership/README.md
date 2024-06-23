@@ -71,3 +71,33 @@ let p3 = &mut s;
 println!("p3: {p3}");
 println!("p1: {p1}, p2: {p2}");
 ```
+
+### Dangling references
+
+In Rust, a function cannot return a pointer to an object it the heap it created, because the owner of the object will be dropped when the function ends. 
+
+Example (doesn't compile):
+```rust
+fn main() {
+  let reference_to_nothing = dangle();
+}
+
+fn dangle() -> &String {
+  let s = String::from("hello");
+  return &s;
+}
+```
+
+A pointer is returned, but there must be one owner of the String. If function ends, owner (s) will be dropped. The solution is to return the owner to the object in the heap.
+
+Example (compiles):
+```rust
+fn main() {
+  let a_proper_string = no_dangle();
+}
+
+fn no_dangle() -> String {
+  let s = String::from("hello");
+  return s;
+}
+```
