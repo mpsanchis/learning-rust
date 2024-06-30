@@ -9,7 +9,29 @@ struct Point(i8,i8,i8);
 struct Color(i8,i8,i8);
 
 fn main() {
-  defining_and_instantiating();
+  //defining_and_instantiating();
+  print_structs();
+}
+
+fn print_structs() {
+  #[derive(Debug)]
+  struct Student {
+    name: String,
+    age: u8
+  }
+
+  let s = Student { name: String::from("Miguel"), age: 30 };
+  println!("The student found is {:?}", s);
+
+  // Using the dbg! macro:
+  dbg!(s);
+  // This cannot be done, as dbg! took ownership
+  // --> println!("The name of s is: {}", s.name);
+  let s2 = Student {
+    name: String::from("Mario"),
+    age: dbg!( 2 * 25 )
+  };
+  dbg!(&s2);
 }
 
 fn defining_and_instantiating() {

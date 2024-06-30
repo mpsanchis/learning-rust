@@ -40,3 +40,22 @@ Empty structs can also be created (use will be discussed in further chapters):
 ```rust
 struct AlwaysEqual;
 ```
+
+## Debugging and printing
+
+In order to print, `println!({}, obj)` expects objects `obj` that implement `std::fmt::Display`. 
+We can also print with `println!({:?}, obj)`, which will expect the `Debug` trait.
+
+We can tell the rust compiler to assume a default Debug trait by adding a header to our struct:
+```rust
+#[derive(Debug)]
+struct User {
+  name: String,
+  age: u8
+}
+```
+
+We can also use the `dbg!` macro, which:
+- takes ownership of the value passed
+- prints the file and line number of where it occurs in the code along with the resultant value of that expression
+- returns ownership of the value
