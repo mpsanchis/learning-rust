@@ -59,3 +59,51 @@ We can also use the `dbg!` macro, which:
 - takes ownership of the value passed
 - prints the file and line number of where it occurs in the code along with the resultant value of that expression
 - returns ownership of the value
+
+## Implementing methods
+
+After a struct is declared, an `impl` block can declare how to implement methods for the struct, that can then be called with dot notation as with attributes.
+
+Functions can be declared in the `impl` block, that add functionalities to the struct:
+```rust
+struct Rectangle {
+  width: u32,
+  height: u32,
+}
+
+impl Rectangle {
+  fn area(&self) -> u32 {
+    self.width * self.height
+  }
+}
+```
+
+Note: multiple `impl` blocks are allowed. Usage is discussed in chapter 10.
+
+Note that `&self` is short for `self: &Self`, since `Self` is an alias for the type that the `impl` block is for (in the example, `Rectangle`).
+
+More parameters can also be passed, not only self:
+```rust
+impl Rectangle {
+  fn can_hold(&self, other: &Rectangle) -> bool {
+    return (self.height > other.height) && (self.width > other.width);
+  }
+}
+```
+
+### Associated functions
+
+These are the equivalent of "class methods", if the previous were "object methods". This is, they don't need an instance of the struct to be created.
+
+This is the case of `String::from`, which belongs to `String` but does not need an instance to be created in order to be used.
+They are typically called `new`, but it new is *not* a reserved name in Rust, so we can use any name. For instance:
+```rust
+impl Rectangle {
+  fn square(size: u32) -> Self {
+    return Self {
+      width: size,
+      heigth: size
+    }
+  }
+}
+```

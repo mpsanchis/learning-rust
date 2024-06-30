@@ -10,7 +10,41 @@ struct Color(i8,i8,i8);
 
 fn main() {
   //defining_and_instantiating();
-  print_structs();
+  // print_structs();
+  method_syntax();
+}
+
+fn method_syntax() {
+  #[derive(Debug)]
+  struct Rectangle {
+      width: u32,
+      height: u32,
+  }
+
+  impl Rectangle {
+    fn area(&self) -> u32 {
+        self.width * self.height
+    }
+    fn can_hold(&self, other: &Rectangle) -> bool {
+      return (self.height > other.height) && (self.width > other.width);
+    }
+    fn square(size: u32) -> Self {
+      return Self {
+        width: size,
+        height: size
+      };
+    }
+  }
+
+  let rect1 = Rectangle { width: 30, height: 50};
+  
+  println!("The area of the rectangle is {} square pixels.", rect1.area());
+  
+  let rect2 = Rectangle { width: 20, height: 100};
+  println!("Rectangle 1 {} hold Rectangle 2", if rect1.can_hold(&rect2) { "can" } else  { "cannot" });
+
+  let sq = Rectangle::square(4);
+  println!("The area of sq is: {}", sq.area())
 }
 
 fn print_structs() {
