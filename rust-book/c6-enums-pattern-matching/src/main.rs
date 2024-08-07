@@ -6,6 +6,8 @@ fn main() {
   enum_with_data();
   println!("---- Option<T> enum ----");
   option_enum();
+  println!("---- Match control flow ----");
+  match_control_flow();
 }
 
 // Enum without data
@@ -27,7 +29,6 @@ fn usage_and_types() {
   route(four);
   route(six);
 }
-
 
 // Enum with data: each value can have different data (or none at all)
 enum Message {
@@ -99,4 +100,55 @@ fn maybe_a_string(s: &str) -> Option<String> {
     return Some(String::from("You have discovered the secret"));
   }
   return None;
+}
+
+// Examples of "match" control flow
+
+#[derive(Debug)] // so we can print using {state:?}
+enum UsState {
+  Alabama,
+  Alaska,
+  // --snip--
+}
+
+enum Coin {
+  Penny,
+  Nickel,
+  Dime,
+  Quarter(UsState),
+}
+
+fn value_in_cents(coin: Coin) -> u8 {
+  match coin {
+    Coin::Penny => 1,
+    Coin::Nickel => 5,
+    Coin::Dime => 10,
+    Coin::Quarter(state) => {
+      println!("Quarter from state: {state:?}");
+      return 25;
+    }
+  }
+}
+
+fn match_control_flow() {
+  let penny_value = value_in_cents(Coin::Penny);
+  println!("The value of a penny is: {penny_value}");
+  let quarter_value = value_in_cents(Coin::Quarter(UsState::Alabama));
+  println!("The value of a quarter is: {quarter_value}");
+  let some_one: Option<u8> = Some(penny_value);
+  let some_two = plus_one(some_one);
+
+  if some_two.is_some() {
+    let two: u8 = some_two.unwrap();
+    println!("The value of some_two is: {two}");
+  }
+  let some_none = plus_one(None);
+  println!("some_none contains just: {some_none:?}");
+}
+
+fn plus_one(x: Option<u8>) -> Option<u8> {
+  match x {
+      None => None,
+      Some(i) => Some(i + 1),
+  }
 }

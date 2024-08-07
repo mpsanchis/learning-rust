@@ -80,3 +80,52 @@ The same applies to `None`. However, we need to explicitly declare the type here
 ```rust
 let not_a_string: Option<String> = None;
 ```
+
+## 6.2 Match control flow
+
+Already used throughout this and past chapters of the book, but here defined with a bit more detail.
+
+Its basic syntax is the following:
+```rust
+match variable {
+  pattern1 => code1, // note the comma
+  pattern2 => code2,
+  ...
+  pattern_n => {
+    // curly braces if more code
+    instructions_with_semicolon();
+  }
+}
+```
+
+We can de-struct the variable being matched when matching in the branch:
+```rust
+match student {
+  Student(degree) => {
+    // do something with the degree
+  }
+  // ...
+}
+```
+
+a typical use case of the previous feature is when working with options:
+
+```rust
+fn plus_one(x: Option<i32>) -> Option<i32> {
+  match x {
+    None => None,
+    Some(i) => Some(i + 1),
+  }
+}
+```
+
+Note that matches must cover all possibilities of the variable being matched (all types it could have). Otherwise rust won't compile. If we want to omit cases, we can use the `other` keyword (if we want to use its value), or the `_` (if we don't want to use it). An example of this is working with numbers (we cannot cover all cases):
+
+```rust
+let dice: u8 = roll_dice();
+match dice {
+  6 => println!("You have won");
+  3 => println!("Play again");
+  other => end_game_with_code(other);
+}
+```
