@@ -129,3 +129,32 @@ match dice {
   other => end_game_with_code(other);
 }
 ```
+
+## 6.3 Concise control flow with "if let"
+The if let syntax lets you combine if and let into a less verbose way to handle values that match one pattern while ignoring the rest.
+
+If only matching for one specific value/type of the variable, `if let` allows to write more concise code.
+
+With `if let`:
+```rust
+if let Coin::Quarter(state) = coin {
+  print_flag_of_state(state);
+}
+```
+
+Without `if let` (we need to match all other cases and "do nothing"):
+```rust
+match coin {
+  Coin::Quarter(state) => print_flag_of_state(state),
+  _ => ()
+}
+```
+
+We can include an `else` case:
+```rust
+if let Coin::Quarter(state) = coin {
+  print_flag_of_state(state);
+} else {
+  print_other_coin_info(coin);
+}
+```

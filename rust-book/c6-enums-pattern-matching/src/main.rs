@@ -8,6 +8,8 @@ fn main() {
   option_enum();
   println!("---- Match control flow ----");
   match_control_flow();
+  println!("---- If let ----");
+  if_let();
 }
 
 // Enum without data
@@ -150,5 +152,20 @@ fn plus_one(x: Option<u8>) -> Option<u8> {
   match x {
       None => None,
       Some(i) => Some(i + 1),
+  }
+}
+
+// Usage of the "if let" syntax
+fn if_let() {
+  let not_a_number: Option<u8> = None;
+  if let Some(number) = not_a_number {
+    println!("This code will never be reached because not_a_number does not contain a number: {number}");
+  }
+
+  let a_number: Option<u8> = Some(16);
+  if let Some(number) = a_number {
+    println!("The number contained in the Option<u8> a_number is: {number}");
+  } else {
+    println!("This code will never run: a_number contains a number");
   }
 }
