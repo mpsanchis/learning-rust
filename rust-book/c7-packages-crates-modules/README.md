@@ -63,3 +63,65 @@ By default, struct fields are private, even if the struct is declared as `pub`. 
 Note that if a struct has private fields, it needs to provide a public associated "constructor" to generate instances of it. Otherwise, external code can't create the private fields. See the `summer` function of `crate::back_of_house::Breakfast` in the example code of `restaurant-lib`.
 
 In contrast, if we make an enum public, all of its variants are then public. We only need the pub before the enum keyword.
+
+## 7.4 The 'use' keyword
+
+*use* creates a shortcut for importing a module. It brings the module to the scope where *use* is declared.
+
+A module from any part of the path can be imported. This is, these two are equivalent:
+1. Importing a function, struct, or enum directly:
+```rust
+use std::collections::HashMap;
+// ...
+let mut map = HashMap::new();
+```
+
+2. Importing a module that contains functions, structs or enums:
+```rust
+use crate::front_of_house::hosting;
+// ...
+hosting::add_to_waitlist();
+```
+
+There aren't fixed rules on how to import modules, but some guidelines help with readability:
+- When bringing in structs, enums, and other items with use, it’s idiomatic to specify the full path (opt. 1)
+- Specifying the parent module when calling the function makes it clear that the function isn’t locally defined while still minimizing repetition of the full path (opt. 2)
+
+If two modules specify an element with the same name, they cannot both be imported with `use`. There are different options to solve this: 
+1. The parent could be used:
+```rust
+use std::fmt;
+use std::io;
+
+fn function1() -> fmt::Result { ... }
+fn function2() -> io::Result<()> { ... }
+```
+
+2. The `as` keyword could be used to rename one (or both) of the imports:
+```rust
+use std::fmt::Result;
+use std::io::Result as IoResult;
+
+fn function1() -> Result { ... }
+fn function2() -> IoResult<()> { ... }
+```
+
+### Re-export with 'pub use'
+A module can import and export another module/function/struct/etc. at the same time, by combining `pub` (export) and `use` (import). This will re-export the element in another module.
+This can be used to define a _nicer-to-use_ public API: the user of the code has a different (simplified) path structure, and the coders of the library have an internal organisation that makes more sense code-wise. 
+
+### One-line multi imports
+Curly braces can be used to import several sub-modules from the same module:
+```rust
+use std::{cmp::Ordering, io};
+```
+
+If we want to import a module, and only some of its children element with name, we can use the `self` keyword:
+```rust
+use std::io::{self, Write};
+```
+
+If we want import _all_ the children from a module, we can use the `*` glob:
+```rust
+use std::collections::*;
+```

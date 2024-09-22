@@ -32,7 +32,29 @@ mod back_of_house {
   pub enum Appetizer {
     Soup,
     Salad,
-} 
+    FreeAppetizerOnTheHouse
+  }
+
+  #[derive(Debug)]
+  pub struct Client {
+    pub name: String,
+    pub phone: String
+  }
+}
+
+use crate::back_of_house::Appetizer;
+mod customer {
+  // Make "Client" available without having to reference its path
+  use crate::back_of_house::Client;
+  pub fn book_at_restaurant(name: &str, phone: &str) {
+    let client = Client {
+      name: String::from(name),
+      phone: String::from(phone)
+    };
+    println!("Client {:?} wants to book a table", client);
+    // Appetizer is out of scope because it's declared at root, not in-module
+    // let free_appetizer = Appetizer::FreeAppetizerOnTheHouse;
+  }
 }
 
 pub fn eat_at_restaurant() {
@@ -55,4 +77,14 @@ pub fn eat_at_restaurant() {
   // Enums' values are public if the enum is "pub"
   let order1 = back_of_house::Appetizer::Soup;
   let order2 = back_of_house::Appetizer::Salad;
+}
+
+// Re-export: allows external users of the restaurant to call Restaurant::book_at_restaurant
+// Without having to know about our internal code organisation (Restaurant::customer::book_at_restaurant)
+pub use customer::book_at_restaurant;
+
+use rand::Rng;
+
+fn main() {
+    let secret_number = rand::thread_rng().gen_range(1..=100);
 }
