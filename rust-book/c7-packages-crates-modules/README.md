@@ -125,3 +125,34 @@ If we want import _all_ the children from a module, we can use the `*` glob:
 ```rust
 use std::collections::*;
 ```
+
+## 7.5 Separating modules into different files
+
+The main file (e.g. `lib.rs`) can declare modules that live in other files, as long as the names match:
+The following `lib.rs` can declare a module:
+```rust
+mod customer;
+
+fn main() {
+    customer::book_at_restaurant("Miguel", "080560992");
+}
+```
+
+As long as the file `customer.rs` is present:
+```rust
+pub fn book_at_restaurant(name: &str, phone: &str) { ... }
+```
+
+More complicatedly, if file `src/front_of_house.rs` exports the module `hosting`, then:
+1. There must be a file `src/front_of_house/hosting.rs`
+2. The module `front_of_house` can declare `pub mod hosting;`
+
+At any given point in the filesystem, there might be a module `module_foo.rs`, and a folder `module_foo`, containing all its submodules in it:
+```
+├── module_foo
+│   ├── module_bar
+│   │   ├── module_baz.rs
+│   ├── module_bar.rs
+├── module_foo.rs
+└── lib.rs
+```

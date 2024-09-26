@@ -1,19 +1,3 @@
-mod front_of_house {
-  pub mod hosting {
-    pub fn add_to_waitlist() {}
-
-    fn seat_at_table() {}
-  }
-
-  mod serving {
-    fn take_order() {}
-
-    fn serve_order() {}
-
-    fn take_payment() {}
-  }
-}
-
 mod back_of_house {
   pub struct Breakfast {
     pub toast: String,
@@ -42,20 +26,10 @@ mod back_of_house {
   }
 }
 
+mod customer;
+mod front_of_house;
+
 use crate::back_of_house::Appetizer;
-mod customer {
-  // Make "Client" available without having to reference its path
-  use crate::back_of_house::Client;
-  pub fn book_at_restaurant(name: &str, phone: &str) {
-    let client = Client {
-      name: String::from(name),
-      phone: String::from(phone)
-    };
-    println!("Client {:?} wants to book a table", client);
-    // Appetizer is out of scope because it's declared at root, not in-module
-    // let free_appetizer = Appetizer::FreeAppetizerOnTheHouse;
-  }
-}
 
 pub fn eat_at_restaurant() {
   // Absolute path
@@ -87,4 +61,5 @@ use rand::Rng;
 
 fn main() {
     let secret_number = rand::thread_rng().gen_range(1..=100);
+    book_at_restaurant("foo", "bar");
 }
