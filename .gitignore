@@ -1,1 +1,4 @@
 rust-book/**/target
+
+# Used in MacOS to store attributes of the folder
+.DS_Store
