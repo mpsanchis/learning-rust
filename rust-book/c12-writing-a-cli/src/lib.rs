@@ -22,29 +22,19 @@ fn search<'a>(contents: &'a str, config: &Config) -> Vec<&'a str> {
 }
 
 fn search_case_sensitive<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-  let mut results = Vec::new();
-
-  for line in contents.lines() {
-    if line.contains(query) {
-      results.push(line);
-    }
-  }
-
-  results
+  contents
+    .lines()
+    .filter(|&line| line.contains(query))
+    .collect()
 }
 
 fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-  let mut results = Vec::new();
-
   let query = query.to_lowercase();
 
-  for line in contents.lines() {
-    if line.to_lowercase().contains(&query) {
-      results.push(line);
-    }
-  }
-
-  results
+  contents
+    .lines()
+    .filter(|&line| line.to_lowercase().contains(&query))
+    .collect()
 }
 
 pub struct Config {
@@ -54,18 +44,25 @@ pub struct Config {
 }
 
 impl Config {
-  pub fn build(args: &[String]) -> Result<Config, String> {
-    if args.len() < 3 {
-      let msg = format!("Not enough arguments. Minimum: 3. Received: {} ({:?})", args.len(), args);
-      return Err(msg);
-    }
+  pub fn build(mut args: impl Iterator<Item = String>) -> Result<Config, String> {
+    // skip first arg: name of the executable
+    args.next();
 
-    let query = args[1].clone();
-    let file_path = args[2].clone();
+    let query = match args.next() {
+      Some(arg) => arg,
+      None => return Err(String::from("Didn't get a query string (first argument)"))
+    };
 
+    let file_path = match args.next() {
+      Some(arg) => arg,
+      None => return Err(String::from("Didn't get a filepath string (second argument)"))
+    };
     Config::validate_file_path(&file_path)?;
 
-    let ignore_case = Config::ignore_case(args.split_at(3).1);
+    // After calls to "next()", the return of "collect()" is the remaining items not yet iterated
+    let flags: Vec<_> = args.collect();
+
+    let ignore_case = Config::ignore_case(&flags);
 
     return Ok(Config {
       query,
@@ -85,7 +82,7 @@ impl Config {
     Ok(())
   }
 
-  fn ignore_case(flags: &[String]) -> bool {
+  fn ignore_case(flags: &Vec<String>) -> bool {
     let ignore_case_env = env::var("IGNORE_CASE").is_ok();
     let ignore_case_arg = flags.iter().any(|flag| flag == "--ignore-case");
 
