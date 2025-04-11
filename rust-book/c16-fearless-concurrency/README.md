@@ -8,6 +8,14 @@ Rust leverages ownership and a strong type system to help with concurrency. High
 
 ## Using threads to run code simultaneously
 
+```
+note: idea of concurrency usage without parallelism
+
+write a CLI tool whose:
+- main thread listens to the stdin, and expects a letter to be passed. If passed, it transmits it to the secondary thread.
+- secondary thread writes words which start with the last letter it received. Checks channel every now and then, and if it sees a new letter, it switches its internal state, and starts printing with that letter.
+```
+
 Concurrency can hugely improve performance, but it can also lead to problems such as:
 * Race conditions, where threads are accessing data or resources in an inconsistent order
 * Deadlocks, where two threads are waiting for each other
