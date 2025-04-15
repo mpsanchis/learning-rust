@@ -174,5 +174,25 @@ Mutexes (mutual exclusion data structures) contain data and a lock, and one has 
 1. Attempt to acquire the lock before using the data
 2. Unlock the data after using it, to make it available to other consumers
 
+In Rust, pointers returned by mutexes implement two fundamental traits:
+* The `Drop` trait, which releases the lock automatically when the smart pointer returned when acquiring the lock goes out of scope. This means that (2.) is not a problem.
+* The `Deref` trait, which allows us to use the `&` and `*` notation when dealing with the result returned.
+
 #### The API of Mutex<T>
+
+The simplest usage of a mutex can be exemplified by this snippet:
+```rust
+use std::sync::Mutex;
+
+let m = Mutex::new(5);
+{
+  let lock_ptr = m.lock(); // Result<MutexGuard, PoisonError>
+  let mut num = lock_ptr.unwrap(); // panics, or MutexGuard<'_, u8> --> smart pointer
+  *num = 6;
+  // lock_ptr dropped --> lock freed
+}
+println!("m = {m:?}");
+```
+
+#### Sharing a Mutex<T> between multiple threads
 

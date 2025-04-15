@@ -8,6 +8,7 @@ pub fn mutex_usage_single_thread() {
 
   {
     println!("modifying Mutex<5> to Mutex<6> by acquiring lock in a MutexGuard smart pointer");
+    let lock_ptr = m.lock();
     let mut num = m.lock().unwrap();
     *num = 6;
     println!("MutexGuard releases the lock when it goes out of scope");
