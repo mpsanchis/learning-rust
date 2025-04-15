@@ -4,7 +4,7 @@ mod shared_state;
 
 use threads_intro::{wait_for_spawned_thread, wait_at_the_end, move_var_to_thread};
 use message_passing::{simple_msg_passing, multiple_sent_messages, multiple_transmitters_multiple_messages};
-use shared_state::{lock_poisoning::{self, lock_poisoning}, mutex_usage_single_thread};
+use shared_state::{lock_poisoning_example, mutex_usage_single_thread, mutex_usage_multi_thread};
 
 fn main() {
   println!("# CH16: Fearless concurrency");
@@ -44,5 +44,8 @@ fn shared_state() {
   mutex_usage_single_thread();
 
   println!("##\nLock poisoning when using Mutex<T>");
-  lock_poisoning();
+  lock_poisoning_example();
+
+  println!("## Using an Arc<Mutex<T>> in multi-threaded scenarios");
+  mutex_usage_multi_thread();
 }

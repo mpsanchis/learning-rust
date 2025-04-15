@@ -1,7 +1,7 @@
 use std::sync::{Arc, Mutex};
 use std::thread;
 
-pub fn lock_poisoning() {
+pub fn lock_poisoning_example() {
   println!("creating a new Mutex<1>");
   let mutex = Arc::new(Mutex::new(1));
 
