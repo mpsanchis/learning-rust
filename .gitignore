@@ -1,5 +1,7 @@
 rust-book/**/target
 rust-book/book-site/
 
+rust-book/other/playground
+
 # Used in MacOS to store attributes of the folder
 .DS_Store
