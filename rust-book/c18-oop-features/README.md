@@ -118,6 +118,21 @@ This book exemplifies the state pattern with a blog post (`Post`) object, which 
 * Any other changes (e.g.: approving a draft before requesting review) should have no effect
 
 The implementation of the state pattern for this case, in a very OOP fashion, looks like the following (Rust incomplete code - rest in `src/`):
+main code:
+```rust
+let mut post = Post::new();
+
+post.add_text("I ate a salad for lunch today");
+assert_eq!("", post.content());
+
+post.request_review();
+assert_eq!("", post.content());
+
+post.approve();
+assert_eq!("I ate a salad for lunch today", post.content());
+```
+
+types:
 ```rust
 pub struct Post {
   state: Option<Box<dyn State>>,
@@ -190,5 +205,49 @@ self.state = current_state.request_review(); // replace again with whatever the 
 
 but this looks uglier, depending on the use case. According to ChatGPT, this pattern is often called an "Option dance", "take pattern", or "temporary move via Option".
 
-// WIP. TODO:
-// - write the "rust" implementation (as opposed to OOP)
+### Variation of the state pattern in a more Rust-idiomatic way
+
+Instead of keeping a single object containing the states inside it, we can re-assign the `post` variable to new post states, every time we call a method that changes the post "type". These functions can consume the struct, deallocating it from memory automatically.
+
+We can have similar structs (but different types) such as:
+```rust
+pub struct DraftPost {
+  content: String,
+}
+
+pub struct PendingReviewPost {
+  content: String,
+}
+
+pub struct Post {
+  content: String,
+}
+```
+
+and define state transitions in functions that take ownership of `self` and return the new struct, such as:
+```rust
+impl PendingReviewPost {
+  pub fn approve(self) -> Post {
+    Post {
+      content: self.content,
+    }
+  }
+}
+// ... more in src/rust_implementation/types.rs
+```
+
+This will deallocate the "old" post when calling the `approve` function.
+
+The *main* code, with extra type annotations for clarity, looks like this instead:
+```rust
+let mut post: DraftPost = Post::new();
+
+post.add_text("I ate a salad for lunch today");
+
+let post: PendingReviewPost = post.request_review();
+let post: Post = post.approve();
+
+assert_eq!("I ate a salad for lunch today", post.content());
+```
+
+Note how we must keep re-assigning the value of `post`, because the functions `request_review` and `approve` consume the value and return a new one. These new values don't always implement methods such as `content()`, so the code can never attempt to call them, unless it is in the correct *state*.
