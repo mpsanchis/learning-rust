@@ -6,7 +6,7 @@ pub struct Post {
 impl Post {
   pub fn new() -> Post {
     Post {
-      state: Some(Box::new(Draft {})),
+      state: Some(Box::new(PostState::Draft)),
       content: String::new(),
     }
   }
@@ -40,46 +40,39 @@ impl Post {
 trait State {
   fn request_review(self: Box<Self>) -> Box<dyn State>;
   fn approve(self: Box<Self>) -> Box<dyn State>;
-  fn content<'a>(&self, post: &'a Post) -> &'a str {
+  fn content<'a>(&self, _post: &'a Post) -> &'a str {
     ""
   }
 }
 
-struct Draft {}
-
-impl State for Draft {
-  fn request_review(self: Box<Self>) -> Box<dyn State> {
-    Box::new(PendingReview {})
-  }
-  // Do nothing, as we can't approve a draft
-  fn approve(self: Box<Self>) -> Box<dyn State> {
-    self
-  }
+#[derive(Debug)]
+enum PostState {
+  Draft,
+  PendingReview,
+  Published
 }
 
-struct PendingReview {}
-
-impl State for PendingReview {
+impl State for PostState {
   fn request_review(self: Box<Self>) -> Box<dyn State> {
-    self
-  }
-  fn approve(self: Box<Self>) -> Box<dyn State> {
-    Box::new(Published {})
-  }
-}
-
-struct Published {}
-
-impl State for Published {
-  fn request_review(self: Box<Self>) -> Box<dyn State> {
-    self
+    match self.as_ref() {
+      PostState::Draft => Box::new(PostState::PendingReview),
+      PostState::PendingReview => self,
+      PostState::Published => self,
+    }
   }
 
   fn approve(self: Box<Self>) -> Box<dyn State> {
-    self
+    match self.as_ref() {
+      PostState::Draft => self,
+      PostState::PendingReview => Box::new(PostState::Published),
+      PostState::Published => self,
+    }
   }
 
   fn content<'a>(&self, post: &'a Post) -> &'a str {
-    &post.content
+    match self {
+      PostState::Published => &post.content,
+      _ => ""
+    }
   }
 }
