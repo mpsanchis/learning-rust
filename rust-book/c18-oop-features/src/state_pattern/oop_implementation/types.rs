@@ -12,7 +12,9 @@ impl Post {
   }
 
   pub fn add_text(&mut self, text: &str) {
-    self.content.push_str(text);
+    if self.state.as_ref().unwrap().is_editable() {
+      self.content.push_str(text);
+    }
   }
 
   pub fn content(&self) -> &str {
@@ -30,6 +32,12 @@ impl Post {
       self.state = Some(s.approve())
     }
   }
+
+  pub fn reject(&mut self) {
+    if let Some(s) = self.state.take() {
+      self.state = Some(s.reject())
+    }
+  }
 }
 
 /*
@@ -39,7 +47,9 @@ impl Post {
 
 trait State {
   fn request_review(self: Box<Self>) -> Box<dyn State>;
+  fn is_editable(&self) -> bool;
   fn approve(self: Box<Self>) -> Box<dyn State>;
+  fn reject(self: Box<Self>) -> Box<dyn State>;
   fn content<'a>(&self, _post: &'a Post) -> &'a str {
     ""
   }
@@ -53,19 +63,28 @@ enum PostState {
 }
 
 impl State for PostState {
+  fn is_editable(&self) -> bool {
+    matches!(self, PostState::Draft)
+  }
+
   fn request_review(self: Box<Self>) -> Box<dyn State> {
     match self.as_ref() {
       PostState::Draft => Box::new(PostState::PendingReview),
-      PostState::PendingReview => self,
-      PostState::Published => self,
+      _ => self,
     }
   }
 
   fn approve(self: Box<Self>) -> Box<dyn State> {
     match self.as_ref() {
-      PostState::Draft => self,
       PostState::PendingReview => Box::new(PostState::Published),
-      PostState::Published => self,
+      _ => self,
+    }
+  }
+
+  fn reject(self: Box<Self>) -> Box<dyn State> {
+    match self.as_ref() {
+      PostState::PendingReview => Box::new(PostState::Draft),
+      _ => self
     }
   }
 
