@@ -1,0 +1,6 @@
+[package]
+name = "c19-patterns-and-matching"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
