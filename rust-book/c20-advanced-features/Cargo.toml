@@ -1,0 +1,7 @@
+[workspace]
+members = [
+  "hello_macro",
+  "c20-advanced-features",
+  "hello_macro_derive",
+  "route_macro"
+]

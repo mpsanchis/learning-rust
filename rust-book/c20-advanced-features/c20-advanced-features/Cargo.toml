@@ -1,0 +1,12 @@
+[package]
+name = "c20-advanced-features"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+ctor = "0.4.2"
+hello_macro = { path = "../hello_macro" }
+hello_macro_derive = { path = "../hello_macro_derive" }
+once_cell = "1.21.3"
+route_macro = { path = "../route_macro" }
+
