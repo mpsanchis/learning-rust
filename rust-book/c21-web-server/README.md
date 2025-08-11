@@ -64,6 +64,20 @@ The output we get is an array of requests similar to:
 
 ### A closer look at an HTTP request
 
+An HTTP request has this format:
+```
+Method Request-URI HTTP-Version CRLF
+headers CRLF
+message-body
+```
+
+where:
+- `Method` is the HTTP method used, such as `GET` or `POST`
+- `Request-URI` is a resource identifier
+- `HTTP-Version` is something like `HTTP/1.1`
+- `headers` are key-value pairs, like `"Accept: text/html"`
+- `message-body` is the payload (not used in `GET` calls)
+
 ### Writing a response
 
 ### Returning a real HTML
