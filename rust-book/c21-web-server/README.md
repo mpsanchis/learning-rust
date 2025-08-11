@@ -28,6 +28,40 @@ The program until now will log "Connection established!" a couple of times, sinc
 
 ### Reading the request
 
+```rust
+fn handle_connection(mut stream: TcpStream) {
+  let buf_reader = BufReader::new(&stream);
+  let http_request: Vec<_> = buf_reader
+      .lines()
+      .map(|result| result.unwrap())
+      .take_while(|line| !line.is_empty())
+      .collect();
+
+  println!("Request: {http_request:#?}");
+}
+```
+
+We leverage `BufReader` from `std::io`, whose constructor accepts anything that implements the `std::io::Read` trait. It has the `lines()` method, which provides an iterator over the lines of its content (the stream). The lines could be an error if the data wasn't valid UTF-8, or there was a problem when reading from the stream, but this code `unwrap`s for simplicity.
+
+The `take_while` method of `Iterator`s is similar to the `filter` method, but stops when the closure returns `false`. We use it to stop reading lines when the browser sends `\r\n\r\n` to signal end of message (as defined in the HTTP protocol).
+
+The output we get is an array of requests similar to:
+```
+[
+  "GET / HTTP/1.1",
+  "Host: 127.0.0.1:7878",
+  "Sec-Fetch-Site: none",
+  "Connection: keep-alive",
+  "Upgrade-Insecure-Requests: 1",
+  "Sec-Fetch-Mode: navigate",
+  "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+  "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15",
+  "Accept-Language: en-GB,en;q=0.9",
+  "Sec-Fetch-Dest: document",
+  "Accept-Encoding: gzip, deflate",
+]
+```
+
 ### A closer look at an HTTP request
 
 ### Writing a response
