@@ -91,6 +91,12 @@ The simplest response is: `HTTP/1.1 200 OK\r\n\r\n`.
 
 ### Returning a real HTML
 
+We can return HTML in the `message-body`. A browser will correctly display it if it matches the HTTP response template.
+
 ### Validating the request and selectively responding
+
+So far, our server was always replying with the same content, independently of the request.
+
+We can match the `Request-URI` and return different html content based on the request.
 
 ### Refactoring

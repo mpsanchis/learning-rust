@@ -22,13 +22,27 @@ fn handle_connection(mut stream: TcpStream) {
     .take_while(|line| !line.is_empty())
     .collect();
 
-  let response = [
-    "HTTP/1.1 200 OK",
-    &fs::read_to_string("src/static/hello.html").unwrap(),
-  ]
-  .join("\r\n\r\n");
+  let response: String;
+  if http_request.first().unwrap() == "GET / HTTP/1.1" {
+    response = [
+      "HTTP/1.1 200 OK",
+      &fs::read_to_string("src/static/hello.html").unwrap(),
+    ]
+    .join("\r\n\r\n");
 
-  println!("Request: {http_request:#?}");
+    println!("Ok request");
+  } else {
+    response = [
+      "HTTP/1.1 404 Not Found",
+      &fs::read_to_string("src/static/404.html").unwrap(),
+    ]
+    .join("\r\n\r\n");
+
+    println!(
+      "Bad request to {}",
+      http_request.first().unwrap().split(" ").nth(1).unwrap()
+    );
+  }
 
   stream.write_all(response.as_bytes()).unwrap();
 }
