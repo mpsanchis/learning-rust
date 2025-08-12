@@ -21,5 +21,9 @@ fn handle_connection(mut stream: TcpStream) {
       .take_while(|line| !line.is_empty())
       .collect();
 
+  let ok_response = "HTTP/1.1 200 OK\r\n\r\n";
+
   println!("Request: {http_request:#?}");
+
+  stream.write_all(ok_response.as_bytes()).unwrap();
 }

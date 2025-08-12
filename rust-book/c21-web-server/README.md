@@ -80,6 +80,15 @@ where:
 
 ### Writing a response
 
+HTTP responses have the following format:
+```
+HTTP-Version Status-Code Reason-Phrase CRLF
+headers CRLF
+message-body
+```
+
+The simplest response is: `HTTP/1.1 200 OK\r\n\r\n`.
+
 ### Returning a real HTML
 
 ### Validating the request and selectively responding
