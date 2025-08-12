@@ -1,6 +1,7 @@
 use std::{
+  fs,
   io::{BufReader, prelude::*}, // to get access to traits and types that let us read from and write to the stream
-  net::{TcpListener, TcpStream}
+  net::{TcpListener, TcpStream},
 };
 
 fn main() {
@@ -16,14 +17,18 @@ fn main() {
 fn handle_connection(mut stream: TcpStream) {
   let buf_reader = BufReader::new(&stream);
   let http_request: Vec<_> = buf_reader
-      .lines()
-      .map(|result| result.unwrap())
-      .take_while(|line| !line.is_empty())
-      .collect();
+    .lines()
+    .map(|result| result.unwrap())
+    .take_while(|line| !line.is_empty())
+    .collect();
 
-  let ok_response = "HTTP/1.1 200 OK\r\n\r\n";
+  let response = [
+    "HTTP/1.1 200 OK",
+    &fs::read_to_string("src/static/hello.html").unwrap(),
+  ]
+  .join("\r\n\r\n");
 
   println!("Request: {http_request:#?}");
 
-  stream.write_all(ok_response.as_bytes()).unwrap();
+  stream.write_all(response.as_bytes()).unwrap();
 }
