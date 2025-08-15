@@ -102,3 +102,26 @@ We can match the `Request-URI` and return different html content based on the re
 ### Refactoring
 
 See code.
+
+## Turning our single-threaded server into a multithreaded server
+
+### Simulating a slow request in the current server implementation
+
+### Improving throughput with a thread pool
+
+### Spawning a thread for each request
+
+### Creating a finite number of threads
+
+### Building a threadpool using compiler-driven development
+
+### Validating the number of threads in `new`
+
+### Creating space to store the threads
+
+### A `Worker` Struct responsible for sending code from the `ThreadPool` to a thread
+
+### Sending requests to threads via channels
+
+### Implementing the `execute` method
+
