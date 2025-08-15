@@ -2,6 +2,8 @@ use std::{
   fs,
   io::{BufReader, prelude::*}, // to get access to traits and types that let us read from and write to the stream
   net::{TcpListener, TcpStream},
+  thread,
+  time::Duration,
 };
 
 fn main() {
@@ -22,10 +24,13 @@ fn handle_connection(mut stream: TcpStream) {
     .take_while(|line| !line.is_empty())
     .collect();
 
-  let (status_line, filename) = if http_request.first().unwrap() == "GET / HTTP/1.1" {
-    ("HTTP/1.1 200 OK", "hello.html")
-  } else {
-    ("HTTP/1.1 404 Not Found", "404.html")
+  let (status_line, filename) = match &http_request.first().unwrap()[..] {
+      "GET / HTTP/1.1" => ("HTTP/1.1 200 OK", "hello.html"),
+      "GET /sleep HTTP/1.1" => {
+          thread::sleep(Duration::from_secs(5));
+          ("HTTP/1.1 200 OK", "hello.html")
+      },
+      _ => ("HTTP/1.1 404 Not Found", "404.html")
   };
 
   let content = fs::read_to_string(format!("src/static/{filename}")).unwrap();

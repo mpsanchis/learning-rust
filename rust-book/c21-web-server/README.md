@@ -107,6 +107,12 @@ See code.
 
 ### Simulating a slow request in the current server implementation
 
+Code now shows how a single-threaded server can "block" fast requests if they arrive after "slow" ones. Try to:
+1. Load `localhost:7878/sleep`, and immediately after
+2. Load `localhost:7878/`
+
+Request 2 has to wait for 1 to finish, even if it's a very fast request.
+
 ### Improving throughput with a thread pool
 
 ### Spawning a thread for each request
