@@ -12,7 +12,9 @@ fn main() {
   for stream in listener.incoming() {
     let stream = stream.unwrap();
 
-    handle_connection(stream);
+    thread::spawn(|| {
+      handle_connection(stream);
+    });
   }
 }
 
@@ -25,12 +27,12 @@ fn handle_connection(mut stream: TcpStream) {
     .collect();
 
   let (status_line, filename) = match &http_request.first().unwrap()[..] {
-      "GET / HTTP/1.1" => ("HTTP/1.1 200 OK", "hello.html"),
-      "GET /sleep HTTP/1.1" => {
-          thread::sleep(Duration::from_secs(5));
-          ("HTTP/1.1 200 OK", "hello.html")
-      },
-      _ => ("HTTP/1.1 404 Not Found", "404.html")
+    "GET / HTTP/1.1" => ("HTTP/1.1 200 OK", "hello.html"),
+    "GET /sleep HTTP/1.1" => {
+      thread::sleep(Duration::from_secs(5));
+      ("HTTP/1.1 200 OK", "hello.html")
+    }
+    _ => ("HTTP/1.1 404 Not Found", "404.html"),
   };
 
   let content = fs::read_to_string(format!("src/static/{filename}")).unwrap();

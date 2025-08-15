@@ -115,7 +115,19 @@ Request 2 has to wait for 1 to finish, even if it's a very fast request.
 
 ### Improving throughput with a thread pool
 
+A thread pool has `N` threads waiting for jobs, and a queue of tasks to serve. Each thread from the pool pulls tasks from the queue as they are free.
+
+Other options (not explored in this exercise) would be:
+- Fork/join model
+- Single-threaded async I/O model
+- Multi-threaded async I/O model
+
+Before starting, we will explore the technique we're not going to use as a starting point.
+
 ### Spawning a thread for each request
+
+Not ideal if many requests can arrive, but a good starting point. See code.
+Note: a good alternative to this would be async/await. Not implemented here.
 
 ### Creating a finite number of threads
 
