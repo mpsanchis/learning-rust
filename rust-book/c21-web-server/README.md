@@ -100,3 +100,5 @@ So far, our server was always replying with the same content, independently of t
 We can match the `Request-URI` and return different html content based on the request.
 
 ### Refactoring
+
+See code.
