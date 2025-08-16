@@ -35,7 +35,7 @@ fn handle_connection(mut stream: TcpStream) {
     _ => ("HTTP/1.1 404 Not Found", "404.html"),
   };
 
-  let content = fs::read_to_string(format!("src/static/{filename}")).unwrap();
+  let content = fs::read_to_string(format!("static/{filename}")).unwrap();
   let content_length = content.len();
   let response = format!("{status_line}\r\nContent-Length: {content_length}\r\n\r\n{content}");
 
