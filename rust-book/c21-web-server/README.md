@@ -131,15 +131,49 @@ Note: a good alternative to this would be async/await. Not implemented here.
 
 ### Creating a finite number of threads
 
-### Building a threadpool using compiler-driven development
+We define an interface of what we would like to have (but don't- yet):
+```rust
+let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
+let pool = ThreadPool::new(4);
 
-### Validating the number of threads in `new`
+for stream in listener.incoming() {
+  let stream = stream.unwrap();
 
-### Creating space to store the threads
+  pool.execute(|| {
+    handle_connection(stream);
+  });
+}
+```
 
-### A `Worker` Struct responsible for sending code from the `ThreadPool` to a thread
+#### Building a threadpool using compiler-driven development
 
-### Sending requests to threads via channels
+Idea behind: since the compiler is quite strict, we can define interfaces (structs, impls, etc.) and run `cargo check` every now and then to verify that the code is respecting the contracts.
+Then, we can iterate by implementing functionalities one by one.
 
-### Implementing the `execute` method
+#### Validating the number of threads in `new`
+
+We can use `assert!` to validate inputs. However, it panics at runtime if assertion fails. Adding doc comments helps the user of a function/struct to understand what happens when executing.
+
+#### Creating space to store the threads
+
+By looking at the `thread::spawn` signature, we see that the return type is:
+```rust
+JoinHandle<T>
+// ...
+where
+    F: FnOnce() -> T
+```
+Basically, `JoinHandle<T>`, where `T` is the return type of the closure passed to the thread.
+
+If our threads don't return (<=> they return `()`), we can store them in a `Vec<JoinHandle<()>>`.
+
+#### A `Worker` Struct responsible for sending code from the `ThreadPool` to a thread
+
+Rust's stdlib doesn't include any way to create a thread that *waits* for code. Only `thread::spawn` is there, which will create a thread and start it immediately.
+
+Therefore, we need additional auxiliary code to store such "waiting threads", which we'll name `Worker`s.
+
+#### Sending requests to threads via channels
+
+#### Implementing the `execute` method
 
