@@ -175,5 +175,17 @@ Therefore, we need additional auxiliary code to store such "waiting threads", wh
 
 #### Sending requests to threads via channels
 
+We want the `Worker` structs to fetch the code to run from a queue held in the `ThreadPool` and send that code to its thread.
+A simple way to communicate between threads is using the channels from Chapter 16. The idea is to:
+1. Create a channel in the `ThreadPool` and hold on to the sender
+2. Each `Worker` will hold on to the receiver
+3. A `Job` struct will hold the closures we want to send down the channel
+4. The `execute` method will send the job through the sender
+5. In its thread, the `Worker` will loop over its receiver, and execute the closures of any jobs it receives
+
+Notes:
+* for this we need to share the receiver among many threads, so we need a `Mutex` to deal with concurrency
+* because we share ownership of the receiver among several threads, we also need an `Arc` (to count references and drop the receiver if references disappear (which doesn't happen in this case, but the compiler needs this information))
+
 #### Implementing the `execute` method
 
