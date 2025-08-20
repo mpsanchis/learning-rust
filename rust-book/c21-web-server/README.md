@@ -189,3 +189,26 @@ Notes:
 
 #### Implementing the `execute` method
 
+We use a `Box` to put the closure to the heap, and send it as a job down the channel.
+
+The `Worker` then loops infinitely, checking the receiver and attempting to receive a Job from it.
+
+Note (subtle): the following implementation doesn't work as expected
+```rust
+while let Ok(job) = receiver.lock().unwrap().recv() {
+  println!("Worker {id} got a job; executing.");
+
+  job();
+}
+```
+
+This is because `while let` does not drop temporary values until the end of the associated block. Our solution, instead:
+```rust
+loop {
+  let job = receiver.lock().unwrap().recv().unwrap();
+  job();
+}
+```
+drops the lock (and frees it) before running the job.
+
+// TODO: have an async version of the same
