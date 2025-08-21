@@ -14,15 +14,18 @@ impl Worker {
   fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker {
     let thread = thread::spawn(move || {
       loop {
-        let job = receiver
+        let msg = receiver
           .lock()
           .expect("Lock for receiving messages was poisoned")
-          .recv()
-          .expect("Main thread sending messages has shut down");
+          .recv();
 
-        println!("Worker #{id} got a job. Executing...");
-
-        job();
+        if let Ok(job) = msg {
+          println!("Worker #{id} got a job. Executing...");
+          job();
+        } else {
+          println!("Worker #{id} disconnected. Shutting down...");
+          break;
+        }
       }
     });
     Worker { id, thread }
@@ -31,7 +34,7 @@ impl Worker {
 
 pub struct ThreadPool {
   workers: Vec<Worker>,
-  sender: mpsc::Sender<Job>,
+  sender: Option<mpsc::Sender<Job>>,
 }
 
 impl ThreadPool {
@@ -53,7 +56,7 @@ impl ThreadPool {
     for id in 0..size {
       workers.push(Worker::new(id, Arc::clone(&receiver)));
     }
-    ThreadPool { workers, sender }
+    ThreadPool { workers, sender: Option::Some(sender) }
   }
 
   pub fn execute<F>(&self, f: F)
@@ -62,6 +65,18 @@ impl ThreadPool {
   {
     let job = Box::new(f);
 
-    self.sender.send(job).unwrap();
+    self.sender.as_ref().unwrap().send(job).unwrap();
+  }
+}
+
+impl Drop for ThreadPool {
+  fn drop(&mut self) {
+    drop(self.sender.take());
+    for _ in 0..self.workers.len() {
+      if let Some(Worker { id, thread }) = self.workers.pop() {
+        thread.join().unwrap();
+        println!("Worker {id} shut down");
+      }
+    }
   }
 }

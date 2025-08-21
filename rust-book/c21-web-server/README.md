@@ -212,3 +212,46 @@ loop {
 drops the lock (and frees it) before running the job.
 
 // TODO: have an async version of the same
+
+## Graceful shutdown and cleanup
+
+So far, when we `Ctrl+C` to halt the main thread, all other threads are stopped as well (because they belong to the same process).
+
+As we implement the following features, note that none of them affect the parts of the code that handle executing closures. Therefore, everything here would be the same if we were using a thread pool for an async runtime.
+
+### Implementing the `Drop` trait on `ThreadPool`
+
+Step 1: Call `join()` on every thread.
+
+At this step we don't have a compiling project, because of:
+```
+error[E0507]: cannot move out of `worker.thread` which is behind a mutable reference
+    --> src/lib.rs:73:7
+     |
+73   |       worker.thread.join().unwrap();
+     |       ^^^^^^^^^^^^^ ------ `worker.thread` moved due to this method call
+     |       |
+     |       move occurs because `worker.thread` has type `JoinHandle<()>`, which does not implement the `Copy` trait
+     |
+note: `JoinHandle::<T>::join` takes ownership of the receiver `self`, which moves `worker.thread`
+```
+Basically, calling `join` takes ownership of the thread: it can only be used once (it consumes `self`). This is intentional: `join` waits for the thread to be finished, so it can only be called once. However, in our code, each `thread` belongs to each `Worker` struct in the `ThreadPool.workers` vector, which is owned by the `ThreadPool` itself.
+
+Step 2: Fix the ownership issue by emptying the workers
+
+If `join` takes ownership of the thread, then the thread is unusable, and so is the `Worker` that owns it. Therefore, a way to solve the ownership issue is to remove the `Worker` from the pool when finishing (joining) the thread. The book's alternative to the code found here was to `drain` the vector, which does effectively the same thing:
+```rust
+for worker in self.workers.drain(..)
+```
+
+### Signaling to the threads to stop listening for jobs
+
+The code at this point compiles, but an infinite `loop` in the threads prevents them from finishing (joining). Therefore, when the `ThreadPool` is dropped, it waits infinitely for the first thread to finish.
+
+Some actions are needed to solve this issue:
+1. Wrapping the `ThreadPool.sender` in an `Option`, to be able to `take` it when dropping the `ThreadPool`, and dropping it.
+2. When calling `ThreadPool::execute`, we need to use `as_ref().unwrap()` on the `sender`, because now it will be wrapped in an `Option`
+3. Dropping the channel with `drop(self.sender.take())`
+4. Once the channel is dropped, the thread will receive an `Err(RecvError)` when calling `recv()`, instead of an `Ok(msg)`. We can leverage this in the thread to `break` the `loop`.
+
+We can test the correct behaviour if we iterate through `listener.incoming.take(N)` in `main`: after *N* requests, the server will shut down.
